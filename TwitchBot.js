@@ -10,6 +10,7 @@ const allBlacklist = JSON.parse(fs.readFileSync("blacklist.json", "utf8"));
 const autoPrintCd = 300000;
 const commandCd = 10000;
 const resetCd = 60000;
+const ignoredNames = ["nightbot", "scootycoolguy"]
 var commandTime = Date.now();
 var printTime = Date.now();
 var resetTime = Date.now();
@@ -48,7 +49,7 @@ function inBlacklist (text, blacklist) {
 function onMessageHandler (target, context, msg, self) {
     if (self) { return; } // Ignore messages from the bot
     if (context["message-type"] == "whisper") {
-        client.say(target, "I am a bot and can not whisper you back. To whisper my creator, type /w Buksss <message>");
+        client.say(target, "I am a bot and can not whisper you back");
     }
     // Remove whitespace from chat message
     const commandName = msg.trim().split(" ");
@@ -66,8 +67,7 @@ function onMessageHandler (target, context, msg, self) {
         commandTime = Date.now();
 
     } else {
-        console.log(msg);
-        if (inBlacklist(msg, allBlacklist) || context.username == "nightbot") {
+        if (inBlacklist(msg, allBlacklist) || ignoredNames.includes(context.username)) {
             return;
         }
         //Add the data of every new message to the cache
