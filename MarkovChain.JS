@@ -85,13 +85,17 @@ module.exports = {
         * with data about the chunks and frequencies of words following those chunks
         */
         var chain = "";
+        const startTime = Date.now();
         var currentChunk = selectChunk(chunks);
         var previousChunk;
         chain += currentChunk;
         count = 1;
         while (1) {
+            if (Date.now() - startTime >= 50000) {
+                return "No chain could be made at this time";
+            }
             if (wordPatterns == {}) {
-                return "No chain could be made at this time."
+                return "No chain could be made at this time.";
             }
             previousChunk = currentChunk;
             var removal = [];
@@ -117,7 +121,7 @@ module.exports = {
                 break;
             }
 
-            if (Object.keys(wordPatterns[currentChunk]).length > 0) {
+            if (wordPatterns[currentChunk] != {}) {
                 if (currentChunk in wordPatterns) {
                     currentChunk = selectChunk(wordPatterns[currentChunk]);
                 } else {
