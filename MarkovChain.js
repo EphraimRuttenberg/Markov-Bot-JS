@@ -1,5 +1,6 @@
 function selectChunk (chunks) {
     //This function selects a chunk randomly using word frequencies as odds for each chunk
+    const startTime = Date.now();
     const total = Object.values(chunks).reduce((a, b) => a + b, 0); //Find the total of all the word frequencies
     //Each new value represents its proportion of the sum total, giving it a percentage chance from 0 to 1 of being selected
     Object.keys(chunks).forEach(function (key) {
@@ -10,6 +11,9 @@ function selectChunk (chunks) {
     const keys = Object.keys(chunks);
     //Subtract the chances of each word from a random number, return the word if the number hits 0
     while (true) {
+        if (Date.now() - startTime > 5000) {
+            return null;
+        }
         number -= chunks[keys[index]];
         if (number <= 0) {
             return keys[index];
@@ -22,10 +26,6 @@ function selectChunk (chunks) {
 function countNonAlphaNums (s) {
     return (s.toLowerCase().match(/[^(a-z0-9)]/gi)||[]).length;
 }
-
-// function searchAndDestroy (wordPatterns, string)  {
-//
-// }
 
 const stopChar = "\n";
 
@@ -83,17 +83,41 @@ module.exports = {
         var chain = "";
         const startTime = Date.now();
         var currentChunk = selectChunk(chunks);
-        var previousChunk;
         chain += currentChunk;
         count = 1;
         while (1) {
+            if (countNonAlphaNums(chain.toLowerCase()) > 12) {
+                let removal = [];
+                for (var k in Object.keys(wordPatterns)) {
+                    let innerRemoval = [];
+                    try {
+                        for (var k2 in Object.keys(wordPatterns[k])) {
+                            if (countNonAlphas(k2.toLowerCase()) > 1) {
+                                delete chunks[k2];
+                                removal.push(k2);
+                                innerRemoval.push(k2);
+                            }
+                        }
+                    }
+                    catch (err) {}
+                    for (var i in innerRemoval) {
+                        delete wordPatterns[k][i];
+                    }
+                }
+                for (var i in removal) {
+                    delete wordPatterns[i];
+                }
+                chain = "";
+                count = 0;
+                curentChunk = selectChunk(chunks);
+            }
+
             if (Date.now() - startTime >= 50000) {
                 return "No chain could be made at this time";
             }
             if (wordPatterns == {}) {
-                return "No chain could be made at this time.";
+                return "No chain could be made at this time";
             }
-            previousChunk = currentChunk;
             var removal = [];
             if (count > 50) {
                 break;
@@ -106,7 +130,9 @@ module.exports = {
                 currentChunk = selectChunk(chunks);
             }
 
-
+            if(currentChunk == null){
+                return "No chain could be made at this time"
+            };
             chain += " " + currentChunk;
             if (currentChunk.includes(stopChar) && count >= 10) {
                 break;
