@@ -39,10 +39,6 @@ module.exports = {
         * Each word has value
         */
 
-        if (countNonAlphaNums(inputText) > 20) {
-            console.log("message bad: " + inputText);
-            return [wordPatterns, wordFrequencies];
-        }
 
         inputText += stopChar;
         var text = inputText.split(" ");
@@ -99,46 +95,17 @@ module.exports = {
             }
             previousChunk = currentChunk;
             var removal = [];
-            //If there are ten or more non alpha-numeric chars in the chain, remove all the chunks with non alphanumeric characters
-            if (countNonAlphaNums(chain) >= 10) {
-                Object.entries(wordPatterns).forEach(function (key1, value) {
-                    Object.keys(value).forEach(function (key2) {
-                        if (countNonAlphaNumbs(key2)) {
-                            removal.push([key1, key2]);
-                        }
-                    });
-                });
-            }
-            for (var i = 0; i < removal.length; i++) {
-                let key1 = removal[i][0];
-                let key2 = removal[i][1];
-                delete wordPatterns[key2];
-                delete chunks[key2];
-                delete wordPatterns[key1][key2];
-
-            }
             if (count > 50) {
                 break;
             }
 
-            if (wordPatterns[currentChunk] != {}) {
-                if (currentChunk in wordPatterns) {
-                    currentChunk = selectChunk(wordPatterns[currentChunk]);
-                } else {
-                    currentChunk = selectChunk(chunks);
-                }
+
+            if (currentChunk in wordPatterns) {
+                currentChunk = selectChunk(wordPatterns[currentChunk]);
             } else {
-                //If there are no possible next chunks, remove the last word of the chain and choose a new currentChunk
-                // from the previous chunk's list
-                console.log("wordpatterns empty");
-                delete wordPatterns[currentChunk];
-                delete chunks[currentChunk];
-                var lastIndex = chain.lastIndexOf(" ");
-                chain = chain.substring(0, lastIndex);
-                currentChunk = previousChunk;
-                count--;
-                continue;
+                currentChunk = selectChunk(chunks);
             }
+
 
             chain += " " + currentChunk;
             if (currentChunk.includes(stopChar) && count >= 10) {
