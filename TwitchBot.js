@@ -57,6 +57,7 @@ function onMessageHandler (target, context, msg, self) {
     //If the command is !chain, make a chain and reset the cooldowns for auto print and commands
     if (commandName[0] == "!chain" && Date.now() - commandTime > commandCd) {
         client.say(target, MarkovChain.makeChain(textData, allChunks));
+        console.log(`Chain printed at ${Date.getHours()}:${Date.getMinutes()}:${Date.getSeconds()}`);
         commandTime = Date.now();
         printTime = Date.now();
 
@@ -76,6 +77,7 @@ function onMessageHandler (target, context, msg, self) {
         allChunks = newData[1];
         //If the cooldown for printing every 5 minutes is over, make a chain automatically
         if (Date.now() - printTime > autoPrintCd) {
+            console.log(`Chain printed at ${Date.getHours()}:${Date.getMinutes()}:${Date.getSeconds()}`);
             client.say(target, MarkovChain.makeChain(textData, allChunks));
             printTime = Date.now();
         }
