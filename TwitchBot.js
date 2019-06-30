@@ -10,7 +10,7 @@ const allBlacklist = JSON.parse(fs.readFileSync("blacklist.json", "utf8"));
 const autoPrintCd = 300000;
 const commandCd = 10000;
 const resetCd = 60000;
-const ignoredNames = ["nightbot", "scootycoolguy", "sumbot_"]
+const ignoredNames = ["nightbot", "scootycoolguy"]
 var commandTime = Date.now();
 var printTime = Date.now();
 var resetTime = Date.now();
@@ -53,12 +53,14 @@ function onMessageHandler (target, context, msg, self) {
     }
     // Remove whitespace from chat message
     const commandName = msg.trim().split(" ");
-
+    var d = new Date();
+    var time = `[${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}] `
+    
     //If the command is !chain, make a chain and reset the cooldowns for auto print and commands
     if (commandName[0] == "!chain" && Date.now() - commandTime > commandCd) {
         client.say(target, MarkovChain.makeChain(textData, allChunks));
         let d = new Date();
-        console.log(`Chain printed at ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`);
+        console.log(`Chain printed at ${time}`);
         commandTime = Date.now();
         printTime = Date.now();
 
@@ -72,14 +74,15 @@ function onMessageHandler (target, context, msg, self) {
         if (inBlacklist(msg, allBlacklist) || ignoredNames.includes(context.username)) {
             return;
         }
+        console.log(`${context.username} ${time}: ${msg}`);
         //Add the data of every new message to the cache
         let newData = MarkovChain.chunkText(msg, textData, allChunks);
         textData = newData[0];
         allChunks = newData[1];
         //If the cooldown for printing every 5 minutes is over, make a chain automatically
         if (Date.now() - printTime > autoPrintCd) {
-            let d = new Date();
-            console.log(`Chain printed at ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`);
+            
+            console.log(`Chain printed at ${time}`);
             client.say(target, MarkovChain.makeChain(textData, allChunks));
             printTime = Date.now();
         }
