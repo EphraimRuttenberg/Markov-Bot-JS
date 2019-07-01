@@ -24,7 +24,7 @@ function selectChunk (chunks) {
 }
 
 function countNonAlphaNums (s) {
-    return (s.toLowerCase().match(/[^(a-z0-9)]/gi)||[]).length;
+    return (s.toLowerCase().match(/[^(a-z0-9/s)]/gi)||[]).length;
 }
 
 const stopChar = "\n";
