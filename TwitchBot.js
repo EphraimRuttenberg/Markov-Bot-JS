@@ -1,23 +1,33 @@
 const MarkovChain = require("./MarkovChain.js");
 const tmi = require("tmi.js");
 const fs = require("fs");
+const axios = require("axios");
 
 var textData = {};
 var allChunks = {};
 
 const config = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 const allBlacklist = JSON.parse(fs.readFileSync("blacklist.json", "utf8"));
-const autoPrintCd = 300000;
+var autoPrintCd;
 const commandCd = 10000;
 const resetCd = 60000;
 const ignoredNames = ["nightbot", "scootycoolguy"]
+const channel = config.channels[0];
+const clientid = config.clientid;
 var commandTime = Date.now();
 var printTime = Date.now();
 var resetTime = Date.now();
 
+async function streaming() {
+    const url = `https://api.twitch.tv/kraken/streams/${channel}?client_id=${clientid}`;
+    var stream = (await axios.get(url)).data.stream;
+    return !(stream == null);
+}
+
+
 function inBlacklist (text, blacklist) {
     //Checks whether or not the text breaks the blacklist
-    let removeStrings = [",", ".", "`", "'", "/"]
+    let removeStrings = [",", ".", "`", "'", "/", "?"]
     for (var i = 0; i < 5; i++) {
         text.replace(removeStrings[i], "");
     }
@@ -46,16 +56,19 @@ function inBlacklist (text, blacklist) {
     return false;
 }
 
-function onMessageHandler (target, context, msg, self) {
+async function onMessageHandler (target, context, msg, self) {
     if (self) { return; } // Ignore messages from the bot
     if (context["message-type"] == "whisper") {
         client.say(target, "I am a bot and can not whisper you back");
     }
+
+    autoPrintCd = await streaming() ? 60000 : 600000;
+
     // Remove whitespace from chat message
     const commandName = msg.trim().split(" ");
     var d = new Date();
     var time = `[${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}] `
-    
+
     //If the command is !chain, make a chain and reset the cooldowns for auto print and commands
     if (commandName[0] == "!chain" && Date.now() - commandTime > commandCd) {
         client.say(target, MarkovChain.makeChain(textData, allChunks));
@@ -81,7 +94,7 @@ function onMessageHandler (target, context, msg, self) {
         allChunks = newData[1];
         //If the cooldown for printing every 5 minutes is over, make a chain automatically
         if (Date.now() - printTime > autoPrintCd) {
-            
+
             console.log(`Chain printed at ${time}`);
             client.say(target, MarkovChain.makeChain(textData, allChunks));
             printTime = Date.now();
