@@ -92,7 +92,7 @@ async function onMessageHandler (target, context, msg, self) {
             }
 
             if (Object.keys(userPatterns).length > 10) {
-                client.say(target, MarkovChain.makeChain(userPatterns, userChunks)});
+                client.say(target, MarkovChain.makeChain(userPatterns, userChunks));
             } else {
                 client.say(target, MarkovChain.makeChain(textData, allChunks));
             }
