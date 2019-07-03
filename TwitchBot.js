@@ -105,7 +105,8 @@ async function onMessageHandler (target, context, msg, self) {
     } else if (commandName[0] == "!markovbot" && Date.now() - commandTime > commandCd) {
         client.say(target, `${context.username} Markov Chain Bot is a bot created by Buksss
             that imitates chat using a system called a Markov Chain. You can activate it
-            by typing !chain, or by waiting for it to say something on its own`);
+            by typing !chain. You can also imitate a specific user by typing !chain <username>,
+            but this can take up to 20 seconds`);
             commandTime = Date.now();
 
     } else {
