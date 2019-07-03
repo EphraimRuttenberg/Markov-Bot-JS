@@ -85,7 +85,7 @@ async function onMessageHandler (target, context, msg, self) {
             //Take all messages from the user mentioned and convert it to Markov data
             for (var i = 0; i < messages.length; i++) {
                 if (! inBlacklist(messages[i])) {
-                    let data = `MarkovChain.chunkText(messages[i], userPatterns, userChunks)`;
+                    let data = MarkovChain.chunkText(messages[i], userPatterns, userChunks);
                     userPatterns = data[0];
                     userChunks = data[1];
                 }
