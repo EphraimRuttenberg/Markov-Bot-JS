@@ -46,8 +46,3 @@ getMessages: async function(months, user) {
     return finalMessages;
 }
 }
-
-
-async function test(){
-    console.log(await getMonths("ajksndkjasndasdasdasd", "moonmoon_ow"));
-}
