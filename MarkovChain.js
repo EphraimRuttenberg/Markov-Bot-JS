@@ -1,3 +1,14 @@
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
+}
+
 function selectChunk (chunks) {
     //This function selects a chunk randomly using word frequencies as odds for each chunk
     const startTime = Date.now();
@@ -8,7 +19,7 @@ function selectChunk (chunks) {
     })
     var number = Math.random();
     var index = 0;
-    const keys = Object.keys(chunks);
+    const keys = shuffle(Object.keys(chunks));
     //Subtract the chances of each word from a random number, return the word if the number hits 0
     while (true) {
         if (Date.now() - startTime > 5000) {
@@ -19,7 +30,7 @@ function selectChunk (chunks) {
             return keys[index];
         }
 
-    index += 1;
+        index += 1;
     }
 }
 
@@ -30,119 +41,119 @@ function countNonAlphaNums (s) {
 const stopChar = "\n";
 
 module.exports = {
-    chunkText: function (inputText, wordPatterns, wordFrequencies) {
-        /*This function takes input text, data about each state, and the frequencies of every word
-        * wordPatterns has information about each state and looks like:
-        * {word A: {word B: # of times B comes after A, word C: # of times C comes after A},
-        * word D: {...}}
-        * wordFrequencies is an object with words as keys and frequencies as values
-        * Each word has value
-        */
+chunkText: function (inputText, wordPatterns, wordFrequencies) {
+    /*This function takes input text, data about each state, and the frequencies of every word
+    * wordPatterns has information about each state and looks like:
+    * {word A: {word B: # of times B comes after A, word C: # of times C comes after A},
+    * word D: {...}}
+    * wordFrequencies is an object with words as keys and frequencies as values
+    * Each word has value
+    */
 
 
-        inputText += stopChar;
-        var text = inputText.split(" ");
-        var currentChunk;
-        var nextChunk;
+    inputText += stopChar;
+    var text = inputText.split(" ");
+    var currentChunk;
+    var nextChunk;
 
-        //If any single word has more than non-alpha characters, return the unmodified data
-        for(i = 0; i  < text.length; i++){
-            if (countNonAlphaNums(text[i]) > 6) {
-                console.log("message bad: " + inputText);
-                return [wordPatterns, wordFrequencies];
-            }
+    //If any single word has more than non-alpha characters, return the unmodified data
+    for(i = 0; i  < text.length; i++){
+        if (countNonAlphaNums(text[i]) > 6) {
+            console.log("message bad: " + inputText);
+            return [wordPatterns, wordFrequencies];
         }
-        for(i = 0; i  < text.length - 1; i++){
-            currentChunk = text[i];
-            nextChunk = text[i+1];
-            //If the current chunk is already in the dict, increment all of its values
-            //Values include: word frequency and data about the next chunk's frequency
-            if (currentChunk in wordPatterns) {
-                wordFrequencies[currentChunk] += 1;
-                //If the current chunk already has data on the next chunk, increment its values
-                if (nextChunk in wordPatterns[currentChunk]) {
-                    wordPatterns[currentChunk][nextChunk] += 1;
-                } else {
-                    wordPatterns[currentChunk][nextChunk] = 1;
-                }
-            //Otherwise, add currentChunk to the dict and set its values to 1
+    }
+    for(i = 0; i  < text.length - 1; i++){
+        currentChunk = text[i];
+        nextChunk = text[i+1];
+        //If the current chunk is already in the dict, increment all of its values
+        //Values include: word frequency and data about the next chunk's frequency
+        if (currentChunk in wordPatterns) {
+            wordFrequencies[currentChunk] += 1;
+            //If the current chunk already has data on the next chunk, increment its values
+            if (nextChunk in wordPatterns[currentChunk]) {
+                wordPatterns[currentChunk][nextChunk] += 1;
             } else {
-                wordFrequencies[currentChunk] = 1;
-                wordPatterns[currentChunk] = {};
                 wordPatterns[currentChunk][nextChunk] = 1;
             }
-
+        //Otherwise, add currentChunk to the dict and set its values to 1
+        } else {
+            wordFrequencies[currentChunk] = 1;
+            wordPatterns[currentChunk] = {};
+            wordPatterns[currentChunk][nextChunk] = 1;
         }
-        return [wordPatterns, wordFrequencies];
-    },
+
+    }
+    return [wordPatterns, wordFrequencies];
+},
 
     makeChain: function (wordPatterns, chunks) {
-        /*This function creates a markov chain based on a list of all chunks and a dict
-        * with data about the chunks and frequencies of words following those chunks
-        */
-        var chain = "";
-        const startTime = Date.now();
-        var currentChunk = selectChunk(chunks);
-        chain += currentChunk;
-        count = 1;
-        while (1) {
-            if (countNonAlphaNums(chain.toLowerCase()) > 12) {
-                let removal = [];
-                for (var k in Object.keys(wordPatterns)) {
-                    let innerRemoval = [];
-                    try {
-                        for (var k2 in Object.keys(wordPatterns[k])) {
-                            if (countNonAlphas(k2.toLowerCase()) > 1) {
-                                delete chunks[k2];
-                                removal.push(k2);
-                                innerRemoval.push(k2);
-                            }
+    /*This function creates a markov chain based on a list of all chunks and a dict
+    * with data about the chunks and frequencies of words following those chunks
+    */
+    var chain = "";
+    const startTime = Date.now();
+    var currentChunk = selectChunk(chunks);
+
+    chain += currentChunk;
+    count = 1;
+    while (1) {
+        if (countNonAlphaNums(chain.toLowerCase()) > 12) {
+            let removal = [];
+            for (var k in Object.keys(wordPatterns)) {
+                let innerRemoval = [];
+                try {
+                    for (var k2 in Object.keys(wordPatterns[k])) {
+                        if (countNonAlphas(k2.toLowerCase()) > 1) {
+                            delete chunks[k2];
+                            removal.push(k2);
+                            innerRemoval.push(k2);
                         }
                     }
-                    catch (err) {}
-                    for (var i in innerRemoval) {
-                        delete wordPatterns[k][i];
-                    }
                 }
-                for (var i in removal) {
-                    delete wordPatterns[i];
+                catch (err) {}
+                for (var i in innerRemoval) {
+                    delete wordPatterns[k][i];
                 }
-                chain = "";
-                count = 0;
-                curentChunk = selectChunk(chunks);
             }
+            for (var i in removal) {
+                delete wordPatterns[i];
+            }
+            chain = "";
+            count = 0;
+            curentChunk = selectChunk(chunks);
+        }
 
-            if (Date.now() - startTime >= 50000) {
-                return chain;
-            }
-            if (wordPatterns == {}) {
-                console.log("patterns empty");
-                return "No chain could be made at this time";
-            }
-            var removal = [];
-            if (count > 50) {
-                break;
-            }
+        if (Date.now() - startTime >= 50000) {
+            return chain;
+        }
+        if (wordPatterns == {}) {
+            console.log("patterns empty");
+            return "No chain could be made at this time";
+        }
+        var removal = [];
+        if (count > 50) {
+            break;
+        }
 
 
-            if (currentChunk in wordPatterns) {
-                currentChunk = selectChunk(wordPatterns[currentChunk]);
-            } else {
-                currentChunk = selectChunk(chunks);
-            }
+        if (currentChunk in wordPatterns) {
+            currentChunk = selectChunk(wordPatterns[currentChunk]);
+        } else {
+            currentChunk = selectChunk(chunks);
+        }
 
-            if(currentChunk == null){
-                console.log("chunk null");
-                console.log(wordPatterns);
-                console.log(currentChunk);
-                return "No chain could be made at this time";
-            };
-            chain += " " + currentChunk;
-            if (currentChunk.includes(stopChar) && count >= 10) {
-                break;
-            }
-
-            count++;
+        if(currentChunk == null){
+            console.log("chunk null");
+            console.log(wordPatterns);
+            console.log(currentChunk);
+            return "No chain could be made at this time";
+        };
+        chain += " " + currentChunk;
+        if (currentChunk.includes(stopChar) && count >= 10) {
+            break;
+        }
+        count++;
         }
         return chain;
     }
