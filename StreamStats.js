@@ -2,12 +2,6 @@ const axios = require("axios");
 
 module.exports = {
 
-streaming: async function(channel, clientid) {
-    const url = `https://api.twitch.tv/kraken/streams/${channel}?client_id=${clientid}`;
-    var stream = (await axios.get(url)).data.stream;
-    return !(stream == null);
-},
-
 getMonths: async function(user, channel){
     let url = `https://overrustlelogs.xyz/stalk?channel=${channel}&nick=${user}`;
     var html = (await axios.get(url)).data;
