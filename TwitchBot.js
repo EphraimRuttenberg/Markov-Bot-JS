@@ -8,7 +8,6 @@ var allChunks = {};
 
 const config = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 const blacklist = JSON.parse(fs.readFileSync("blacklist.json", "utf8"));
-var autoPrintCd = 600000;
 const commandCd = 10000;
 const resetCd = 60000;
 const streamCheckCd = 10000;
@@ -16,9 +15,9 @@ const ignoredNames = ["nacholistic", "nightbot", "scootycoolguy"]
 const channel = config.channels[0];
 const clientid = config.clientid;
 var commandTime = Date.now();
-var printTime = Date.now();
 var resetTime = Date.now();
 var streamCheckTime = Date.now() - 10000;
+var messages = 0;
 
 
 
@@ -55,13 +54,9 @@ function inBlacklist (text) {
 
 async function onMessageHandler (target, context, msg, self) {
     if (self) { return; } // Ignore messages from the bot
+    messages += 1;
     if (context["message-type"] == "whisper") {
         client.say(target, "I am a bot and can not whisper you back");
-    }
-    //Check if the stream is live every 10 seconds
-    if (Date.now() - streamCheckTime > streamCheckCd) {
-        autoPrintCd = await stream.streaming(channel, config.clientid) ? 60000 : 600000;
-        streamCheckTime = Date.now();
     }
 
     // Remove whitespace from chat message
@@ -119,10 +114,9 @@ async function onMessageHandler (target, context, msg, self) {
         textData = newData[0];
         allChunks = newData[1];
         //If the cooldown for printing every 5 minutes is over, make a chain automatically
-        if (Date.now() - printTime > autoPrintCd) {
-
+        if (messages >= 200) {
             client.say(target, MarkovChain.makeChain(textData, allChunks));
-            printTime = Date.now();
+            messages = 0;
         }
     }
     //If the reset cooldown is over, empty the cache
