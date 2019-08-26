@@ -113,8 +113,7 @@ async function onMessageHandler (target, context, msg, self) {
         let newData = MarkovChain.chunkText(msg, textData, allChunks);
         textData = newData[0];
         allChunks = newData[1];
-        //If the cooldown for printing every 5 minutes is over, make a chain automatically
-        if (messages >= 200) {
+        if (messages >= 100) {
             client.say(target, MarkovChain.makeChain(textData, allChunks));
             messages = 0;
         }
