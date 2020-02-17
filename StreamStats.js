@@ -25,7 +25,7 @@ getMessages: async function(months, user) {
     var finalMessages = [];
     for (var i = 0; i < months.length; i++) {
         let date = months[i].split(" ");
-        let url = `https://overrustlelogs.net/moonmoon_ow%20chatlog/${date[0]}%20${date[1]}/userlogs/${user}.txt`
+        let url = `https://overrustlelogs.net/moonmoon%20chatlog/${date[0]}%20${date[1]}/userlogs/${user}.txt`
         try {
             var messages = (await axios.get(url)).data.split("\n");
         } catch (err) {}
