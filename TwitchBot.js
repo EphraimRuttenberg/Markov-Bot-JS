@@ -8,7 +8,7 @@ var allChunks = {};
 
 const config = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 const blacklist = JSON.parse(fs.readFileSync("blacklist.json", "utf8"));
-const commandCd = 10000;
+const commandCd = 45000;
 const resetCd = 60000;
 const streamCheckCd = 10000;
 const ignoredNames = ["nacholistic", "nightbot", "scootycoolguy"]
