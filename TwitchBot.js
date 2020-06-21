@@ -9,7 +9,7 @@ var allChunks = {};
 const config = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
 const blacklist = JSON.parse(fs.readFileSync("blacklist.json", "utf8"));
 const commandCd = 45000;
-const resetCd = 60000;
+const resetCd = 1200000;
 const streamCheckCd = 10000;
 const ignoredNames = ["nacholistic", "nightbot", "scootycoolguy"]
 const channel = config.channels[0];
@@ -97,7 +97,7 @@ async function onMessageHandler (target, context, msg, self) {
 
         commandTime = Date.now();
 
-    } else if (commandName[0] == "!markovbot" && Date.now() - commandTime > commandCd) {
+    } else if (commandName[0] == "!markovbot" && Date.now()) {
         client.say(target, `${context.username} Markov Chain Bot is a bot created by Buksss
             that imitates chat using a system called a Markov Chain. You can activate it
             by typing !chain. You can also imitate a specific user by typing !chain <username>,
