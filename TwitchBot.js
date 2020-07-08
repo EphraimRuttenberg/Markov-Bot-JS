@@ -66,7 +66,7 @@ async function onMessageHandler (target, context, msg, self) {
     //If the command is !chain, make a chain and reset the cooldowns for auto print and commands
     if (commandName[0] == "!chain" && Date.now() - commandTime > commandCd) {
         //If the command is of the form !chain <user>, check if that user has talked in the channel
-        if commandName.length > 1 {
+        if (commandName.length > 1) {
         var months;
         try {
             months = await stream.getMonths(commandName[1], channel);
