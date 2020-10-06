@@ -16,8 +16,14 @@ var commandTime = Date.now();
 var resetTime = Date.now();
 var messages = 0;
 
+const colors = ["Red", "Blue", "Green", "Firebrick", "Coral", "BlueViolet", "CadetBlue", "Chocolate",
+"DodgerBlue", "GoldenRod", "HotPink", "OrangeRed", "SeaGreen", "SpringGreen", "YellowGreen"]
 
-
+function changeColor (target) {
+    randomElement = colors[Math.floor(Math.random() * colors.length)];
+    client.say(target, `/color ${randomElement}`)
+    console.log(randomElement)
+}
 
 function inBlacklist (text) {
     //Checks whether or not the text breaks the blacklist
@@ -63,12 +69,16 @@ async function onMessageHandler (target, context, msg, self) {
     //If the command is !chain, make a chain and reset the cooldowns for auto print and commands
     if (commandName[0] == "!chain" && Date.now() - commandTime > commandCd) {
             client.say(target, MarkovChain.makeChain(textData, allChunks));
+            changeColor(target);
             commandTime = Date.now();
+            messages = 0
     } else if (commandName[0] == "!markovbot" && Date.now() - commandTime > commandCd) {
         client.say(target, `${context.username} Markov Chain Bot is a bot created by Buksss
             that imitates chat using a system called a Markov Chain. You can activate it
             by typing !chain, or by waiting for it to say something on its own`);
+            changeColor(target);
             commandTime = Date.now();
+            messages = 0
 
     } else {
         if (inBlacklist(msg) || ignoredNames.includes(context.username)) {
@@ -82,6 +92,7 @@ async function onMessageHandler (target, context, msg, self) {
         //If the cooldown for printing every 5 minutes is over, make a chain automatically
         if (messages > 150) {
             client.say(target, MarkovChain.makeChain(textData, allChunks));
+            changeColor(target);
             messages = 0;
         }
     }
