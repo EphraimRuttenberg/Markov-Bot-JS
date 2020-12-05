@@ -90,7 +90,7 @@ async function onMessageHandler (target, context, msg, self) {
         textData = newData[0];
         allChunks = newData[1];
         //If the cooldown for printing every 5 minutes is over, make a chain automatically
-        if (messages > 150) {
+        if (messages > 300) {
             client.say(target, MarkovChain.makeChain(textData, allChunks));
             changeColor(target);
             messages = 0;
